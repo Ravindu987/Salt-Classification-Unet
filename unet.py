@@ -75,19 +75,9 @@ def get_model(n_filters=16, dropout=0.1, batchnorm=True):
     p9 = Dropout(dropout)(p9)
     c9 = conv2d_block(p9, n_filters, batchnorm=batchnorm)
 
-    outputs = Conv2D(1, 1, activation="sigmoid")(c9)
+    outputs = Conv2D(3, 1, activation="softmax")(c9)
 
-    return Model(inputs=[input], outputs=[outputs])
-
-
-BATCH_SIZE = 16
-
-model = get_model()
-model.compile(
-    optimizer="adam",
-    loss=BinaryCrossentropy(),
-    metrics=["accuracy"],
-)
+    return Model(inputs=[input], outputs=[outputs], name="UNET")
 
 
 def binarize_image(image):
@@ -97,48 +87,56 @@ def binarize_image(image):
     return binary_image
 
 
-im_gen = ImageDataGenerator(rescale=1.0 / 255.0)
-msk_gen = ImageDataGenerator(preprocessing_function=binarize_image)
+if __name__ == "__main__":
+    BATCH_SIZE = 16
 
-img_dir = "./competition_data/competition_data/train/images/"
-mask_dir = "./competition_data/competition_data/train/masks/"
-check_path = "./Saved Models/model6.hdf5"
+    model = get_model()
+    model.compile(
+        optimizer="adam",
+        loss=BinaryCrossentropy(),
+        metrics=["accuracy"],
+    )
 
-im_generator = im_gen.flow_from_directory(
-    img_dir,
-    class_mode=None,
-    batch_size=BATCH_SIZE,
-    seed=1,
-    target_size=(128, 128),
-    color_mode="rgb",
-)
+    im_gen = ImageDataGenerator(rescale=1.0 / 255.0)
+    msk_gen = ImageDataGenerator(preprocessing_function=binarize_image)
 
-mask_generator = msk_gen.flow_from_directory(
-    mask_dir,
-    class_mode=None,
-    batch_size=BATCH_SIZE,
-    seed=1,
-    target_size=(128, 128),
-    color_mode="grayscale",
-)
+    img_dir = "./competition_data/competition_data/train/images/"
+    mask_dir = "./competition_data/competition_data/train/masks/"
+    check_path = "./Saved Models/model6.hdf5"
 
+    im_generator = im_gen.flow_from_directory(
+        img_dir,
+        class_mode=None,
+        batch_size=BATCH_SIZE,
+        seed=1,
+        target_size=(128, 128),
+        color_mode="rgb",
+    )
 
-data_generator = zip(im_generator, mask_generator)
-total_train = len(im_generator)
+    mask_generator = msk_gen.flow_from_directory(
+        mask_dir,
+        class_mode=None,
+        batch_size=BATCH_SIZE,
+        seed=1,
+        target_size=(128, 128),
+        color_mode="grayscale",
+    )
 
+    data_generator = zip(im_generator, mask_generator)
+    total_train = len(im_generator)
 
-checkpoint = ModelCheckpoint(
-    filepath=check_path,
-    save_best_only=True,
-    monitor="accuracy",
-    verbose=1,
-)
+    checkpoint = ModelCheckpoint(
+        filepath=check_path,
+        save_best_only=True,
+        monitor="accuracy",
+        verbose=1,
+    )
 
-model.fit(
-    data_generator,
-    steps_per_epoch=total_train,
-    epochs=2,
-    callbacks=[checkpoint],
-)
+    model.fit(
+        data_generator,
+        steps_per_epoch=total_train,
+        epochs=2,
+        callbacks=[checkpoint],
+    )
 
-# model.summary()
+    # model.summary()

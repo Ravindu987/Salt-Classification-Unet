@@ -13,6 +13,13 @@ def create_mask(pred_mask):
     return pred_mask
 
 
+def binarize_image(image):
+    image = image / 255
+    threshold = 0.5
+    binary_image = np.where(image >= threshold, 1, 0)
+    return binary_image
+
+
 MODEL_VERSION = 6
 img_dir = "./competition_data/competition_data/train/images/images/"
 mask_dir = "./competition_data/competition_data/train/masks/masks/"
@@ -49,6 +56,7 @@ for i, t in enumerate(tests):
     img = np.expand_dims(img, axis=0)
 
     predict = model.predict(img)
+    predict = binarize_image(predict)
 
     # predict = create_mask(predict)
     predict = np.squeeze(predict, axis=0)
