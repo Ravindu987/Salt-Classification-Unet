@@ -20,13 +20,16 @@ def show_predictions(dataset=None, num=4):
 
 
 if __name__ == "__main__":
-    dataset, info = tfds.load("oxford_iiit_pet:3.*.*", with_info=True)
+    dataset, info = tfds.load(
+        "oxford_iiit_pet:3.*.*", with_info=True, shuffle_files=True
+    )
     test_data = dataset["test"].map(load_image, num_parallel_calls=tf.data.AUTOTUNE)
 
-    MODEL_VERSION = 2
-    unet_model = load_model(f"./Saved Models/unet{MODEL_VERSION}.hdf5")
+    print(info)
+    # MODEL_VERSION = 2
+    # unet_model = load_model(f"./Saved Models/unet{MODEL_VERSION}.hdf5")
 
-    unet_model.compile(
-        optimizer="adam", loss=SparseCategoricalCrossentropy(), metrics="accuracy"
-    )
-    show_predictions(test_data)
+    # unet_model.compile(
+    #     optimizer="adam", loss=SparseCategoricalCrossentropy(), metrics="accuracy"
+    # )
+    # show_predictions(test_data)

@@ -56,7 +56,7 @@ def display_random_train():
 if __name__ == "__main__":
     BATCH_SIZE = 32
     BUFFER_SIZE = 1000
-    EPOCHS = 20
+    EPOCHS = 30
 
     dataset, info = tfds.load("oxford_iiit_pet:3.*.*", with_info=True)
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     early_stop = EarlyStopping(monitor="val_accuracy", patience=5, verbose=1)
     save_check = ModelCheckpoint(
-        filepath="./Saved Models/unet2.hdf5",
+        filepath="./Saved Models/unet3.hdf5",
         save_best_only=True,
         monitor="val_accuracy",
         verbose=1,
