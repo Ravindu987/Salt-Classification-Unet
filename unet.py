@@ -34,8 +34,8 @@ def conv2d_block(input, n_filters, kernel_size=3, batchnorm=True):
     return x
 
 
-def get_model(n_filters=16, dropout=0.1, batchnorm=True):
-    input = Input(shape=[128, 128, 3])
+def get_model(n_filters=16, dropout=0.1, batchnorm=True, input_shape=[128, 128, 3]):
+    input = Input(shape=input_shape)
 
     c1 = conv2d_block(input, n_filters, batchnorm=batchnorm)
     p1 = MaxPooling2D()(c1)
@@ -75,7 +75,7 @@ def get_model(n_filters=16, dropout=0.1, batchnorm=True):
     p9 = Dropout(dropout)(p9)
     c9 = conv2d_block(p9, n_filters, batchnorm=batchnorm)
 
-    outputs = Conv2D(3, 1, activation="softmax")(c9)
+    outputs = Conv2D(1, 1, activation="sigmoid")(c9)
 
     return Model(inputs=[input], outputs=[outputs], name="UNET")
 
